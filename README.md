@@ -1,39 +1,26 @@
 All documentation for the workshop is best viewed from the github.io pages
 
-[Documentation](https://ucdavis-bioinformatics-training.github.io/ucdavis-bioinformatics-training_template/)
+[Documentation](https://ucdavis-bioinformatics-training.github.io/2020-Intro_Single_Cell_RNA_Seq/)
 
-Bioinformatics: RNA-Seq Workshop @ UC Davis  
-Aug. 19, 2019, 9 a.m. - Aug. 23, 2019, 4:30 p.m.  
+Bioinformatics: Introduction to Single Cell RNA-Seq Analysis Workshop
+May 20, 2020, 9 a.m. - May 22, 2020, 4:30 p.m. online learning
+Aug. 12, 2020, 9 a.m. - Aug. 14, 2020, 4:30 p.m. @ UC Davis  
 Organizer - Bioinformatics Core  
 Contact - UC Davis Bioinformatics Core, training.bioinformatics@ucdavis.edu
 
-This workshop will include a rich collection of lectures and hands-on sessions, covering both theory and tools associated with command-line RNA-seq data analysis. Participants will explore experimental design, cost estimation, data generation, and analysis of RNA-Seq data generated on the Illumina sequencing platform. Participants will explore software and protocols, create and modify workflows, and diagnose/treat problematic data utilizing high performance computing services. Exercises will be performed with provided datasets, using command-line interaction.
+This workshop will cover experimental design, data generation, and analysis of single cell RNA sequencing data (primarily generated using the 10x platform) on the command line and within the R statistical programming language. Participants will explore software and protocols, create and modify workflows, and diagnose/treat problematic data utilizing high performance computing services. Exercises will be performed on the command line and within R with a provided dataset. The primary packages used for analysis will be 10x software (for sequence reads to counts) and the R packages (ex. Seurat) for downstream analysis.
 
-A preliminary agenda for the week includes:
+There are no prerequisites other than basic familiarity with genomic concepts. Anyone with an interest in scRNA sequence analysis is welcome! Some familiarity with the command-line and R is helpful. However, we will dedicate some small amount of time to bringing everyone up-to-speed to be able to run the commands needed during this workshop. This workshop will be held in Davis and will run from 9:00am to 5:00pm each day and include light breakfast, lunch, and snacks.
 
-* Monday	Introduction to the command line, cluster resources, and the R programming language (or advanced computing topics)
-* Tuesday	Introduction to sequence data and preprocessing
-* Wednesday        	Mapping data to a genome and transcript expression quantification
-* Thursday	Differential expression analysis
-* Friday	Post differential expression analysis, including gene set enrichment analysis, Gene Ontology/Pathway analysis, Generation of figures and tables
-
-Lectures throughout the week will include topics such as:
-
-* Sequencing technologies
-* What is Bioinformatics?
-* Hardware and software considerations
-* Experimental design and cost estimation
-* TAG-Seq vs. mRNA-Seq
+Participants must bring their own laptops to use, which should have a recent version of R, Rstudio, and Java installed, and an application that allows them to ssh into a server (e.g. Bash for Windows, or Terminal for Apple), as well as the ability to connect to the internet via wifi.
 
 ### Industry Sponsors
 
 |:------|:------|------|
-| Monday | <img src="base_figures/kapa.jpeg" alt="kapa" width="150px"/> |  |  
-| Monday Evening Social |  <img src="base_figures/illumina.png" alt="illumina" width="150px"/> |    |  
-| Tuesday | <img src="base_figures/agilant.png" alt="agilant" width="150px"/> |    |  
-| Wednesday | <img src="base_figures/lexogen.jpeg" alt="lexogen" width="150px"/> |    |  
-| Thursday | <img src="base_figures/takara.png" alt="takara" width="150px"/> |    |  
-| Friday | <img src="base_figures/10x.png" alt="10x genomics" width="150px"/> |    |  
+| Illumina |  <img src="base_figures/illumina.png" alt="illumina" width="150px"/> |    |  
+| Takara | <img src="base_figures/takara.png" alt="takara" width="150px"/> |    |  
+| 10x Genomics | <img src="base_figures/10x.png" alt="10x genomics" width="150px"/> |    |  
+| Celsee | ||
 
 ### FAQ
 
@@ -60,6 +47,6 @@ If you have any questions, please don’t hesitate to contact us at training.bio
 
 ### Register
 
-https://registration.genomecenter.ucdavis.edu/events/RNASeq-workshop_Aug_2019/  
+https://registration.genomecenter.ucdavis.edu/events/intro_scRNASeq_2020_UCSF/
+https://registration.genomecenter.ucdavis.edu/events/intro_scRNASeq_2020_Davis/
 
-**Registration is closed for this event**
