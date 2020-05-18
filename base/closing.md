@@ -46,7 +46,7 @@ Now in our 13th year of training researchers, the UC Davis Bioinformatics Core i
 
 For more information on these and other events, and to register, go to [https://registration.genomecenter.ucdavis.edu/](https://registration.genomecenter.ucdavis.edu/)
 
-## Previous Workshops availabl online
+## Previous Workshops available online
 If you would like to take a look at the [documentation](https://ucdavis-bioinformatics-training.github.io/) from previous workshops.
 
 
