@@ -6,8 +6,28 @@ navigation:
   - title: Home
     url: /
 
-  - heading: Introduction
+  - heading: Introduction and Lectures
   - title: Intro to the Workshop and Core
-    url: welcome
-  - title: Examples of Markdown Formatting
-    url: examples
+    url: base/welcome
+  - title: What is Bioinformatics/Genomics?
+    url: https://raw.githubusercontent.com/ucdavis-bioinformatics-training/ucdavis-bioinformatics-training.presentations/master/genomics/Genomics_a_perspective_May_2020.pdf
+  - title: Experimental Design and Cost Estimation
+    url:
+
+  - heading: Support
+  - title: Cheat Sheets
+    url: base/cheatSheetIndex
+  - title: Software and Links
+    url: software_scripts/software
+  - title: Scripts
+    url: software_scripts/scripts_links
+
+  - heading: ETC
+  - title: Closing thoughts
+    url: base/closing
+  - title: Workshop Photos
+    url: photos/photos
+  - title: Github page
+    url: https://github.com/ucdavis-bioinformatics-training/2020-Intro_Single_Cell_RNA_Seq
+  - title: Biocore website
+    url: http://bioinformatics.ucdavis.edu
