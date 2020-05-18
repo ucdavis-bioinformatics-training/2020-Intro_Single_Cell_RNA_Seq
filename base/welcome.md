@@ -35,6 +35,7 @@ Course lecture, discussions, and one-on-one help/troubleshooting will be conduct
   * Each participant will be provided a personal break out room that will allow one-on-one troubleshooting by our staff, screen sharing and even remote control.
   * The Chat features of Zoom will **not** be our primary mode of text communication as its history is not reliable.
   * We will stick to a schedule to allow people to plan their day and know when they need to be back at their computers for lecture.
+  * Video recordings of lectures will be made available to participants.
 
 Because video is involved, we ask everyone to be respectful and we reserve the right to remove someone if they are being disrespectful or disruptive.
 
