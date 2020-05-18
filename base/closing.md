@@ -32,7 +32,7 @@ My recommendation is to follow all of the instructions again, from the beginning
 
 ##  Upcoming Workshops
 
-Now in our 13th year of training researchers, the UC Davis Bioinformatics Core invites you to attend one or more of our 2019 workshops. The following workshops are suitable for beginners, and are also of interest to those with some data analysis experience.
+Now in our 13th year of training researchers, the UC Davis Bioinformatics Core invites you to attend one or more of our 2020 workshops. The following workshops are suitable for beginners, and are also of interest to those with some data analysis experience.
 
 | :------------- |:-------------:|
 | May 26 - May 28, 2020	| Advanced Single Cell RNA-Seq Remote Workshop |
@@ -53,4 +53,5 @@ If you would like to take a look at the [documentation](https://ucdavis-bioinfor
 ## Questions?
 
 Contact us at [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu)
-Email List Note:  If you received this email directly from [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu), you are currently subscribed to one of our announcements lists. To subscribe / unsubscribe from the Bioinformatics Core email lists, please follow the instructions at the bottom of [http://bioinformatics.ucdavis.edu/contact-us/](http://bioinformatics.ucdavis.edu/contact-us/).
+
+If you receive email directly from [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu), you are currently subscribed to one of our announcements lists. To subscribe / unsubscribe from the Bioinformatics Core email lists, please follow the instructions at the bottom of [http://bioinformatics.ucdavis.edu/contact-us/](http://bioinformatics.ucdavis.edu/contact-us/).
