@@ -9,6 +9,8 @@ navigation:
   - heading: Introduction and Lectures
   - title: Intro to the Workshop and Core
     url: base/welcome
+  - title: Schedule
+    url: base/schedule
   - title: What is Bioinformatics/Genomics?
     url: https://raw.githubusercontent.com/ucdavis-bioinformatics-training/ucdavis-bioinformatics-training.presentations/master/genomics/Genomics_a_perspective_May_2020.pdf
   - title: Experimental Design and Cost Estimation

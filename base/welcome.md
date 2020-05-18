@@ -36,6 +36,8 @@ Course lecture, discussions, and one-on-one help/troubleshooting will be conduct
   * The Chat features of Zoom will **not** be our primary mode of text communication as its history is not reliable.
   * We will stick to a schedule to allow people to plan their day and know when they need to be back at their computers for lecture.
 
+Because video is involved, we ask everyone to be respectful and we reserve the right to remove someone if they are being disrespectful or disruptive.
+
 ####  Slack
 
 Text based communication will be conducted via a Slack channel. Staff will be monitoring the Slack channel to answer questions (and schedule a Zoom break out room if needed). If you know the answer to someone elses question, feel free to answer it.
