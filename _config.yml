@@ -14,7 +14,7 @@ navigation:
   - title: What is Bioinformatics/Genomics?
     url: https://raw.githubusercontent.com/ucdavis-bioinformatics-training/ucdavis-bioinformatics-training.presentations/master/genomics/Genomics_a_perspective_May_2020.pdf
   - title: Experimental Design and Cost Estimation
-    url:
+    url: https://raw.githubusercontent.com/ucdavis-bioinformatics-training/ucdavis-bioinformatics-training.presentations/master/singlecell/scRNAseq-expDesign_May_2020.pdf
 
   - heading: Support
   - title: Cheat Sheets
@@ -23,6 +23,46 @@ navigation:
     url: software_scripts/software
   - title: Scripts
     url: software_scripts/scripts_links
+
+  - heading: Prerequisites
+  - title: CLI - Logging in and Transferring Files
+    url: prerequisites/cli/logging-in
+  - title: CLI - Intro to Command-Line
+    url: prerequisites/cli/command-line-intro
+  - title: CLI - Advanced Command-Line (extra)
+    url: prerequisites/cli/advanced-command-line
+  - title: CLI - Running jobs on the Cluster and using modules
+    url: prerequisites/cli/cluster
+  - title: R - Getting Started
+    url: prerequisites/intro2R/RStudio
+  - title: R - Intro to R
+    url: prerequisites/intro2R/Intro2R_fixed
+  - title: R - Prepare Data in R (extra)
+    url: prerequisites/intro2R/data_in_R_prepare_fixed
+  - title: R - Data in R (extra)
+    url: prerequisites/intro2R/data_in_R_fixed
+
+  - heading: Data Reduction
+  - title: Project setup
+    url: data_reduction/project_setup
+  - title: Generating Expression Matrix
+    url: data_reduction/Expression_Matrix
+
+  - heading: scRNAseq Analysis
+  - title: Prepare scRNAseq Analysis
+    url: scrnaseq_analysis/scrna_analysis_prepare
+  - title: scRNAseq Analysis - PART1
+    url: scrnaseq_analysis/scRNA_Workshop-PART1_fixed
+  - title: scRNAseq Analysis - PART2
+    url: scrnaseq_analysis/scRNA_Workshop-PART2_fixed
+  - title: scRNAseq Analysis - PART3
+    url: scrnaseq_analysis/scRNA_Workshop-PART3_fixed
+  - title: scRNAseq Analysis - PART4
+    url: scrnaseq_analysis/scRNA_Workshop-PART4_fixed
+  - title: scRNAseq Analysis - PART5
+    url: scrnaseq_analysis/scRNA_Workshop-PART5_fixed
+  - title: scRNAseq Analysis - PART6
+    url: scrnaseq_analysis/scRNA_Workshop-PART6_fixed
 
   - heading: ETC
   - title: Closing thoughts
