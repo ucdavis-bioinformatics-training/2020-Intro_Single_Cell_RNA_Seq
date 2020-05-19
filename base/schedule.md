@@ -34,7 +34,7 @@
 
 **8:50 am**  Zoom session starts  
 **10:30 am**   15 minute break  
-**11:30 am**    Cell Preparation by Diana Burkhard-Wako
+**11:30 am**    Cell Preparation by Diana Burkard-Waco
 **12:00 pm** Lunch hour  
 **3:00 pm**  15 minute break  
 **5:00  pm**  Zoom session ends  

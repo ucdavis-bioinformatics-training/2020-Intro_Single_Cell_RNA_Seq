@@ -1,3 +1,14 @@
+
+The dataset used in this course is from a local recently published mouse dataset.  
+
+iScience. 2019 Nov 22;21:720-735. doi: 10.1016/j.isci.2019.10.064. Epub 2019 Oct 31.  
+[_"Single-Cell RNA-seq Reveals Profound Alterations in Mechanosensitive Dorsal Root Ganglion Neurons With Vitamin E Deficiency"_](https://pubmed.ncbi.nlm.nih.gov/31733517/)  
+Carrie J Finno, Janel Peterson, Mincheol Kang, Seojin Park, Matthew H Bordbari, Blythe Durbin-Johnson, Matthew Settles, Maria C Perez-Flores, Jeong H Lee, Ebenezer N Yamoah
+
+I have manipulated the original files to:
+1. combine the replicates into a single sample.
+2. reduce the number of cells per sample to a more managable number for the course.
+
 # Data Setup
 
 Let's set up a project directory for the analysis, and talk a bit about project philosophy..

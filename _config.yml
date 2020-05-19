@@ -50,7 +50,7 @@ navigation:
 
   - heading: scRNAseq Analysis
   - title: Prepare scRNAseq Analysis
-    url: scrnaseq_analysis/scrna_analysis_prepare
+    url: data_analysis/scrna_analysis_prepare
   - title: scRNAseq Analysis - PART1
     url: scrnaseq_analysis/scRNA_Workshop-PART1_fixed
   - title: scRNAseq Analysis - PART2
