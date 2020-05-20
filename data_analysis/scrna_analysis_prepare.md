@@ -143,4 +143,4 @@ output:
 
 Your RStudio should look something like this
 
-<img src="figures/RStudio" alt="RStudio" width="80%"/>
+<img src="figures/RStudio.png" alt="RStudio" width="80%"/>
