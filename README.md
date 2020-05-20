@@ -16,16 +16,6 @@ There are no prerequisites other than basic familiarity with genomic concepts. A
 
 Participants must supply their own laptop/desktop with a reliable connection to the internet. The labtop/desktop should have a current versions of [R version 4.0](https://cloud.r-project.org/), [Rstudio](https://rstudio.com/products/rstudio/download/#download), and Java installed, and an application that allows them to ssh into a server (e.g. Bash for Windows, or Terminal for Apple)
 
-<!--
-### Industry Sponsors
-
-|:------|:------|------|
-| Illumina |  <img src="base_figures/illumina.png" alt="illumina" width="150px"/> |    |  
-| Takara | <img src="base_figures/takara.png" alt="takara" width="150px"/> |    |  
-| 10x Genomics | <img src="base_figures/10x.png" alt="10x genomics" width="150px"/> |    |  
-| Celsee | ||
--->
-
 ### FAQ
 
 **Who should attend?** … Prior course participants have included faculty, post docs, grad students, staff, and industry researchers.
