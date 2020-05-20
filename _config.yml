@@ -52,17 +52,17 @@ navigation:
   - title: Prepare scRNAseq Analysis
     url: data_analysis/scrna_analysis_prepare
   - title: scRNAseq Analysis - PART1
-    url: scrnaseq_analysis/scRNA_Workshop-PART1_fixed
+    url: data_analysis/scRNA_Workshop-PART1_fixed
   - title: scRNAseq Analysis - PART2
-    url: scrnaseq_analysis/scRNA_Workshop-PART2_fixed
+    url: data_analysis/scRNA_Workshop-PART2_fixed
   - title: scRNAseq Analysis - PART3
-    url: scrnaseq_analysis/scRNA_Workshop-PART3_fixed
+    url: data_analysis/scRNA_Workshop-PART3_fixed
   - title: scRNAseq Analysis - PART4
-    url: scrnaseq_analysis/scRNA_Workshop-PART4_fixed
+    url: data_analysis/scRNA_Workshop-PART4_fixed
   - title: scRNAseq Analysis - PART5
-    url: scrnaseq_analysis/scRNA_Workshop-PART5_fixed
+    url: data_analysis/scRNA_Workshop-PART5_fixed
   - title: scRNAseq Analysis - PART6
-    url: scrnaseq_analysis/scRNA_Workshop-PART6_fixed
+    url: data_analysis/scRNA_Workshop-PART6_fixed
 
   - heading: ETC
   - title: Closing thoughts
