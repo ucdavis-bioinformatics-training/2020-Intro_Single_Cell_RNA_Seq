@@ -342,6 +342,11 @@ Obviously, be careful with 'rm -rf', there is no going back, if you delete somet
 
 ## BASH Wildcard Characters
 
+Since we just deleted the PhiX folder, lets redownload
+
+    wget ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/PhiX/Illumina/RTA/PhiX_Illumina_RTA.tar.gz
+    tar -xzvf PhiX_Illumina_RTA.tar.gz
+
 When we want to specify or operate on sets of files all at once.
 
     ls ?hiX/Illumina
