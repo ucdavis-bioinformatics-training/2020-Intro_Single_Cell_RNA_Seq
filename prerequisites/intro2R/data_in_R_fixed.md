@@ -10,7 +10,7 @@ output:
 
 Recreating (and maybe improving on) some of the figures generated with plot-bamstats application in R.
 
- Lets start by making sure packages and data can be loaded and read in.
+## Lets start by making sure packages and data can be loaded and read in.
 
 First lets load knitr, tidyverse, reshape2 and gridExtra packages.
 
@@ -124,9 +124,9 @@ Lets take a quick look at the comments in the file
 grep("^# ",data, value=TRUE)
 ```
 
- Lets first parse out the different sections and save them into different variable (tables).
+## Lets first parse out the different sections and save them into different variable (tables).
 
-# Summary table
+### Summary table
 First lets extract the Summary numbers and create a summary table
 
 * First extract the right rows, these begin with (^) SN.
@@ -191,9 +191,9 @@ pairs on different chromosomes:   49491
 ?kable
 ```
 
-**On your own**: While the Value column is numeric, by default it is being read in as characters. Lets use kable align parameter to left justify name and right justify value.
+**On your own** : While the Value column is numeric, by default it is being read in as characters. Lets use kable align parameter to left justify name and right justify value.
 
-# Lets get the next section, read lengths
+### Lets get the next section, read lengths
 
 First lets extract the read length data and create a table
 
@@ -209,7 +209,7 @@ rl <- grep("^RL",data, value=TRUE)
 rl <- separate(data.frame(rl),col=1, into=c("ID", "read_length", "count"), sep="\t", convert = TRUE)[,-1]
 ```
 
-# Lets get the insert size of mapped pairs
+### Lets get the insert size of mapped pairs
 
 First lets extract the insert sizes data and create a table
 
@@ -225,7 +225,7 @@ is <- grep("^IS",data, value=TRUE)
 is <- separate(data.frame(is),col=1, into=c("ID", "insert size","all pairs", "inward", "outward", "other"), sep="\t", convert=TRUE)[,-1]
 ```
 
-# Lets get the ACGT content per cycle
+### Lets get the ACGT content per cycle
 
 First lets extract the base composition of first and last pairs and create a table
 
@@ -241,7 +241,7 @@ actg <- grep("^GCC",data, value=TRUE)
 actg <- separate(data.frame(actg),col=1, into=c("ID", "cycle", "A", "C", "G", "T", "N", "O"), sep="\t",  convert=TRUE)[,-1]
 ```
 
-# Lets get the fragment qualities of mapped pairs
+### Lets get the fragment qualities of mapped pairs
 
 First lets extract the fragment qualities of first and last pairs and create a table
 
@@ -261,7 +261,7 @@ fq <- separate(data.frame(fq),col=1, into=c("Pair", "Cycle", seq(41)), sep="\t",
 </div>
 We get a message here, saying data is missing. This is because there are no 38,39,40,41 quality scores (the typical range for Illumina qualities).
 
-# Lets get the GC content of mapped pairs
+### Lets get the GC content of mapped pairs
 
 First lets extract the GC content of first and last pairs and create a table
 
@@ -276,7 +276,7 @@ gc <- grep("^GCF|^GCL",data, value=TRUE)
 gc <- separate(data.frame(gc),col=1, into=c("Pair", "GC", "Count"), sep="\t", convert=TRUE)
 ```
 
-# Lets get the Indel Distribution
+### Lets get the Indel Distribution
 
 First lets extract the indel distribution data and create a table
 
@@ -292,7 +292,7 @@ id <- grep("^ID",data, value=TRUE)
 id <- separate(data.frame(id),col=1, into=c("ID", "length", "insertion_count", "deletion_count"), sep="\t", covert=TRUE)[,-1]
 ```
 
-# Lets get the Indel per cycle
+### Lets get the Indel per cycle
 
 First lets extract the indel by cycle data and create a table
 
@@ -308,9 +308,9 @@ ic <- grep("^IC",data, value=TRUE)
 ic <- separate(data.frame(ic),col=1, into=c("ID", "cycle", "ins_fwd", "ins_rev", "del_fwd", "del_rev"), sep="\t", convert=TRUE)[,-1]
 ```
 
-# Lets get the coverage data and GC Coverage data
+### Lets get the coverage data and GC Coverage data
 
-**On your own**: Use what you learned above to extract these 2 sections from the file.
+**On your own** : Use what you learned above to extract these 2 sections from the file.
 
 Coverage data
 * First extract the right rows, these begin (^) with IS.
@@ -326,7 +326,7 @@ GC Coverage data
   * separate by the tab character "\t"
   * and remove the first column '[,-1]', the GCD
 
-# Some Summary stats with
+### Some Summary stats with
 
 
 ```r
@@ -344,7 +344,7 @@ new_is <- mutate(is,poutward=outward/`all pairs`, pinward=inward/`all pairs`)
 
 Try using "distinct", on is (or new_is) on the outward and inward columns
 
- **On your own** Tasks
+## **On your own** Tasks
 
 1. View the head/tail of some (or even all) of the objects.
 2. Use dim to get an idea of the table dimentions.
@@ -367,7 +367,7 @@ So now we have new objects (data.frames) that hold the data we are interested in
 * Coverage distribution -> GCD -> gccov
 
 
- Now lets go over some basics of ggplot2
+## Now lets go over some basics of ggplot2
 
 ggplot2 uses a basic syntax framework (called a Grammar in ggplot2) for all plot types:
 
@@ -395,7 +395,7 @@ The basic idea: independently specify plot building blocks and combine them (usi
       <SCALE_FUNCTION> +
       <THEME_FUNCTION>
 
-# Our first plot, plotting the insert size of mapped fragments
+### Our first plot, plotting the insert size of mapped fragments
 
 We use the ggplot function and define the data as 'is' and x, y as as.numeric(get("insert size")), as.numeric(get("all pairs")), respectively. We use "get" because they have spaces in the names, and as.numeric because the data are characters (due to the manner in which we readin the data.
 
@@ -443,9 +443,9 @@ g + geom_line(aes(y=get("inward")),color="blue") +
 
 Ok so now put all these elements together into a single plot, save final plot as 'g'
 
-** On your own**: Ok so put it all together, plot all four columns of the insert size data object, add in legends, reasonable coordinate limits
+**On your own** : Ok so put it all together, plot all four columns of the insert size data object, add in legends, reasonable coordinate limits
 
-** On your own**: Play with ggplot2 themes (ex. theme_classic() )
+**On your own** : Play with ggplot2 themes (ex. theme_classic() )
 
 
 ```r
@@ -463,7 +463,7 @@ plot(g)
 
 ![](Data_in_R_files/figure-html/insert_length-1.png)<!-- -->
 
-# Plotting GC content
+### Plotting GC content
 
 In order to plot GC percentage we first need to convert the counts to proportions, to do so we can divide the counts by the sum of counts.
 
@@ -488,9 +488,9 @@ h
 
 ![](Data_in_R_files/figure-html/plot_gc-1.png)<!-- -->
 
-** On your own**: Finish the plot (add labels, etc.). Save the final graph object in h
+**On your own** : Finish the plot (add labels, etc.). Save the final graph object in h
 
-# Plotting the base composition by cycle
+### Plotting the base composition by cycle
 
 Sometimes we may need to transform our data before plotting. The melt funciton from reshape2 takes data in wide format (data are in columns) and stacks a set of columns into a single column of data. In the ACTG object we can stack bases values by cycle.
 
@@ -510,9 +510,9 @@ i
 
 ![](Data_in_R_files/figure-html/plot_base_comp-1.png)<!-- -->
 
-** On your own**: Using what you learned until now, finish the plot, save it as object i
+**On your own** : Using what you learned until now, finish the plot, save it as object i
 
-# Lets now do a boxplot of basepair
+### Lets now do a boxplot of basepair
 
 
 ```r
@@ -522,9 +522,9 @@ i2
 
 ![](Data_in_R_files/figure-html/actg_boxplot-1.png)<!-- -->
 
-** On your own**: Try some other geometries (Ex. bin2d, col, count, which generate an 'interpretable' plot)
+**On your own** : Try some other geometries (Ex. bin2d, col, count, which generate an 'interpretable' plot)
 
-# Plotting a heatmap of qualities
+### Plotting a heatmap of qualities
 
 First lets melt the quality scores
 
@@ -567,13 +567,13 @@ j
 
 ![](Data_in_R_files/figure-html/heatmap-1.png)<!-- -->
 
-** On your own** Try modifying scale_fill_gradient to scale_fill_distiller.
+**On your own** Try modifying scale_fill_gradient to scale_fill_distiller.
 
-** On your own** Play with parts of the plotting function, see how the change modifies the plot.
+**On your own** Play with parts of the plotting function, see how the change modifies the plot.
 
-# Plotting indel lengths
+### Plotting indel lengths
 
-** On your own**  Recreate the indel lengths plot
+**On your own**  Recreate the indel lengths plot
 
 
 ```r
@@ -607,7 +607,7 @@ k
 </div>
 ![](Data_in_R_files/figure-html/grid_tweek-1.png)<!-- -->
 
- update the axis labels
+## update the axis labels
 
 ```r
 k <- k + xlab("indel length") + ylab("indel count (log10)")
@@ -658,7 +658,7 @@ grid.arrange(k, l, nrow = 1)
 </div>
 ![](Data_in_R_files/figure-html/grid-1.png)<!-- -->
 
-# Fancy Multiple plots in a grid
+### Fancy Multiple plots in a grid
 The gridExtra package is great for plotting multiple object in one plot.
 
 ![](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2019_August_UCD_mRNAseq_Workshop/master/intro2R/Data_in_R_figures/grid_plot.png)<!-- -->
@@ -675,19 +675,19 @@ full <- grid.arrange(
 
 ![](Data_in_R_files/figure-html/cluster-1.png)<!-- -->
 
-** on your own**: Play with th grid.arrange function, using the plots you've created to create you own final combined plot.
+**on your own** : Play with th grid.arrange function, using the plots you've created to create you own final combined plot.
 
-# Saving plots as png or pdf
+### Saving plots as png or pdf
 
 This must be done outside of the Notebook as the notebook expects you to plot in the notebook only, so run on the Console.
 
-Saving plots to pdf ** do on the console **
+Saving plots to pdf **do on the console**
 
 ```r
 ggsave("multi_plot.pdf",full,device="pdf",width=6,height=4, units="in", dpi=300)
 ```
 
-Saving plots to png  ** do on the console **
+Saving plots to png  **do on the console**
 
 ```r
 ggsave("multi_plot.png",full,device="png",width=6,height=4, units="in", dpi=300)
@@ -697,7 +697,7 @@ View the help documentation for ggsave, what other
 
 With any remaining time (or homework), use the ggplot cheat sheet to further expand and modify the plots.
 
- ggplot2 book by its author, Hadley Wickham
+## ggplot2 book by its author, Hadley Wickham
 
 [book in PDF form](http://moderngraphics11.pbworks.com/f/ggplot2-Book09hWickham.pdf)
 
