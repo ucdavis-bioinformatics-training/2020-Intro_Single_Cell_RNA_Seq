@@ -60,7 +60,8 @@ Generally, we do not use any options for sbatch ... we typically give it a scrip
 #SBATCH --time=60 # Acceptable time formats include "minutes", "minutes:seconds", "hours:minutes:seconds", "days-hours", "days-hours:minutes" and "days-hours:minutes:seconds".
 #SBATCH --mem=2000 # Memory pool for all cores (see also --mem-per-cpu)
 #SBATCH --partition=production # cluster partition
-#SBATCH --account=workshop # cluster account to use for the job
+#SBATCH --account=intro_scrna_workshop # cluster account to use for the job
+#SBATCH --reservation=intro_scrna_workshop # the workshop reservation
 ##SBATCH --array=1-16 # Task array indexing, see https://slurm.schedmd.com/job_array.html, the double # means this line is commented out
 #SBATCH --output=stdout.out # File to which STDOUT will be written
 #SBATCH --error=stderr.err # File to which STDERR will be written
@@ -85,7 +86,7 @@ The first line tells sbatch what scripting language (bash here) the rest of the 
 
 
     cd /share/workshop/$USER
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2019_August_UCD_mRNAseq_Workshop/master/templates/template.slurm
+    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2020-Intro_Single_Cell_RNA_Seq/master/software_scripts/scripts/template.slurm
     cat template.slurm
     sbatch template.slurm
 
