@@ -116,14 +116,14 @@ sessionInfo()
 
 In the R console run the following command
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2020-Intro-Single-Cell-RNA-Seq/master/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2020-Intro_Single_Cell_RNA_Seq/master/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
 ```
 
 ### Download the data for the workshop, extract it.
 
 In the R console run the following command.
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2020-Intro-Single-Cell-RNA-Seq/master/datasets/expression_tables_cellrangerV3.zip", "expression_tables_cellrangerV3.zip")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2020-Intro_Single_Cell_RNA_Seq/master/datasets/expression_tables_cellrangerV3.zip", "expression_tables_cellrangerV3.zip")
 system("unzip expression_tables_cellrangerV3.zip") # works in Linux and Mac, not sure about Windows"
 ```
 
