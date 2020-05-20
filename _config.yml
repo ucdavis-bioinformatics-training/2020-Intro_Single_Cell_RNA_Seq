@@ -41,6 +41,8 @@ navigation:
     url: prerequisites/intro2R/data_in_R_prepare_fixed
   - title: R - Data in R (extra)
     url: prerequisites/intro2R/data_in_R_fixed
+  - title: More Materials (extra)
+    url: https://ucdavis-bioinformatics-training.github.io/2019-Winter-Bioinformatics_Command_Line_and_R_Prerequisites_Workshop/
 
   - heading: Data Reduction
   - title: Project setup

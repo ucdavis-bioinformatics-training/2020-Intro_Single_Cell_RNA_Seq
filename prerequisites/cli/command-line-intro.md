@@ -11,6 +11,12 @@
 
 A greater than sign (>) instead of a prompt means the shell is expecting more input. Can Cntr-c to cancel the operation and return to a prompt.
 
+## Most Common Mistakes
+
+1. Your in the wrong directory, use the command `pwd` to show what directory your in.
+2. Spelling/Capilalization, check the command carefully for errors, use your <TAB>.
+3. Spaces, you may have put (or not put a space where needed).
+
 ## Directory Structure
 
 Absolute path: always starts with ”/”
@@ -102,11 +108,11 @@ Navigate like in 'less' (up,down,pgup,pgdn,g,G,/pattern,n,N,q), look up and try 
     ls -l -a
     ls -la  # option 'smushing' ... when no values need specifying
     ls -ltrha
-    
-And finally adding color: 
+
+And finally adding color:
 
     ls -ltrha --color  # single letter (smushed) vs word options (Linux)
-    
+
 **OR**
 
     ls -ltrhaG  # (MacOS)
@@ -409,7 +415,7 @@ Combine successive identical sequences, but count them ('-c' option)
 
 Finally sort using reverse numeric order ('-rn')
 
-    grep --color  -o "ATG......" phix.fa | cut -c4-6 | sort | uniq -c | sort -rn 
+    grep --color  -o "ATG......" phix.fa | cut -c4-6 | sort | uniq -c | sort -rn
 
 ... which gives us the most common codons first
 
