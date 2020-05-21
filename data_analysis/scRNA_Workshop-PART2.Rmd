@@ -8,6 +8,7 @@ output:
 ## Load libraries
 ```{r, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
+library(biomaRt)
 library(knitr)
 library(kableExtra)
 ```
@@ -38,11 +39,6 @@ round(do.call("cbind", tapply(experiment.aggregate$percent.mito, Idents(experime
 RidgePlot(experiment.aggregate, features="percent.mito")
 ```
 
-Table of cell cycle
-
-```{r}
-table(experiment.aggregate@meta.data$cell.cycle) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
-```
 
 Plot the number of cells each gene is represented by
 ```{r}
@@ -101,20 +97,105 @@ experiment.aggregate.genes
 ```
 
 ```{r}
-table(experiment.aggregate$orig.ident)
+table(Idents(experiment.aggregate))
 ```
 
 ## Next we want to normalize the data
 
 After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
 
-```{r}
+```{r eval=FALSE}
 ?NormalizeData
+```
+
+```{r}
 experiment.aggregate <- NormalizeData(
   object = experiment.aggregate,
   normalization.method = "LogNormalize",
   scale.factor = 10000)
 ```
+
+
+## Calculate cell cycle using scran, add to meta data
+(Scialdone A, Natarajana KN, Saraiva LR et al. (2015). Computational assignment of cell-cycle stage from single-cell transcriptome data. Methods 85:54–61])[https://pubmed.ncbi.nlm.nih.gov/26142758/]
+
+Using the package scran, get the mouse cell cycle markers and a mapping of m
+**There may be issues with timeout for the Biomart server, just keep trying**
+```{r}
+mm.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
+# Convert to matrix for use in cycle
+mat <- as.matrix(GetAssayData(experiment.aggregate))
+
+# Convert rownames to ENSEMBL IDs, Using biomaRt
+ensembl<- useMart(biomart = "ensembl", dataset = "mmusculus_gene_ensembl")
+
+anno <- getBM( values=rownames(mat), attributes=c("mgi_symbol","ensembl_gene_id") , filters= "mgi_symbol"  ,mart=ensembl)
+
+ord <- match(rownames(mat), anno$mgi_symbol) # use anno$mgi_symbol if via biomaRt
+rownames(mat) <- anno$ensembl_gene_id[ord] # use anno$ensembl_gene_id if via biomaRt
+drop <- which(is.na(rownames(mat)))
+mat <- mat[-drop,]
+cycles <- scran::cyclone(mat, pairs=mm.pairs)
+tmp <- data.frame(cell.cycle = cycles$phases)
+rownames(tmp) <- colnames(mat)
+experiment.aggregate <- AddMetaData(experiment.aggregate, tmp)
+```
+
+#### Table of cell cycle (scran)
+
+```{r}
+table(experiment.aggregate@meta.data$cell.cycle) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+```
+
+### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
+[Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
+
+First need to convert to mouse symbols, we'll use Biomart for that too.
+```{r}
+table(Idents(experiment.aggregate))
+
+convertHumanGeneList <- function(x){
+  require("biomaRt")
+  human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+  mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
+
+  humanx <- unique(genes[, 2])
+
+  # Print the first 6 genes found to the screen
+  print(head(humanx))
+  return(humanx)
+}
+
+m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
+m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
+
+# Create our Seurat object and complete the initialization steps
+experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
+```
+
+#### Table of cell cycle (seurate)
+
+```{r}
+table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+```
+
+#### Comparing the 2
+
+```{r}
+table(scran=experiment.aggregate$cell.cycle, seurat=experiment.aggregate$Phase)  %>% kable(caption = "Comparing scran to seurat cell cycle calls", align = "c") %>% kable_styling()
+```
+
+#### Fixing the defualt "Ident" in Seurat
+
+```{r}
+table(Idents(experiment.aggregate))
+## So lets change it back to samplename
+Idents(experiment.aggregate) <- "orig.ident"
+table(Idents(experiment.aggregate))
+```
+
 
 ## Identify variable genes
 

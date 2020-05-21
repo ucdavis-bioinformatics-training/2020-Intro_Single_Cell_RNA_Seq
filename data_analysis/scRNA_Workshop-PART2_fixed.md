@@ -9,6 +9,7 @@ output:
 
 ```r
 library(Seurat)
+library(biomaRt)
 library(knitr)
 library(kableExtra)
 ```
@@ -137,36 +138,6 @@ RidgePlot(experiment.aggregate, features="percent.mito")
 </div>
 ![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
-Table of cell cycle
-
-
-```r
-table(experiment.aggregate@meta.data$cell.cycle) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
-```
-
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<caption>Number of Cells in each Cell Cycle Stage</caption>
- <thead>
-  <tr>
-   <th style="text-align:center;"> Stage </th>
-   <th style="text-align:center;"> Count </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> G1 </td>
-   <td style="text-align:center;"> 2753 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> G2M </td>
-   <td style="text-align:center;"> 111 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> S </td>
-   <td style="text-align:center;"> 32 </td>
-  </tr>
-</tbody>
-</table>
 
 Plot the number of cells each gene is represented by
 
@@ -174,7 +145,7 @@ Plot the number of cells each gene is represented by
 plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3)) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
 
@@ -185,7 +156,7 @@ VlnPlot(
   ncol = 1, pt.size = 0.3)
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 Gene Plot, scatter plot of gene expression across cells, (colored by sample)
 
@@ -193,7 +164,7 @@ Gene Plot, scatter plot of gene expression across cells, (colored by sample)
 FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito")
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ```r
 FeatureScatter(
@@ -201,7 +172,7 @@ FeatureScatter(
   pt.size = 0.5)
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-8-2.png)<!-- -->
 
 ### Cell filtering
 We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 10% and unique UMI counts under 20,000 or greater than 500.
@@ -255,7 +226,7 @@ experiment.aggregate.genes
 </div>
 
 ```r
-table(experiment.aggregate$orig.ident)
+table(Idents(experiment.aggregate))
 ```
 
 <div class='r_output'> 
@@ -269,11 +240,223 @@ After filtering out cells from the dataset, the next step is to normalize the da
 
 ```r
 ?NormalizeData
+```
+
+
+```r
 experiment.aggregate <- NormalizeData(
   object = experiment.aggregate,
   normalization.method = "LogNormalize",
   scale.factor = 10000)
 ```
+
+
+## Calculate cell cycle using scran, add to meta data
+(Scialdone A, Natarajana KN, Saraiva LR et al. (2015). Computational assignment of cell-cycle stage from single-cell transcriptome data. Methods 85:54–61])[https://pubmed.ncbi.nlm.nih.gov/26142758/]
+
+Using the package scran, get the mouse cell cycle markers and a mapping of m
+**There may be issues with timeout for the Biomart server, just keep trying**
+
+```r
+mm.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
+# Convert to matrix for use in cycle
+mat <- as.matrix(GetAssayData(experiment.aggregate))
+
+# Convert rownames to ENSEMBL IDs, Using biomaRt
+ensembl<- useMart(biomart = "ensembl", dataset = "mmusculus_gene_ensembl")
+
+anno <- getBM( values=rownames(mat), attributes=c("mgi_symbol","ensembl_gene_id") , filters= "mgi_symbol"  ,mart=ensembl)
+
+ord <- match(rownames(mat), anno$mgi_symbol) # use anno$mgi_symbol if via biomaRt
+rownames(mat) <- anno$ensembl_gene_id[ord] # use anno$ensembl_gene_id if via biomaRt
+drop <- which(is.na(rownames(mat)))
+mat <- mat[-drop,]
+cycles <- scran::cyclone(mat, pairs=mm.pairs)
+tmp <- data.frame(cell.cycle = cycles$phases)
+rownames(tmp) <- colnames(mat)
+experiment.aggregate <- AddMetaData(experiment.aggregate, tmp)
+```
+
+#### Table of cell cycle (scran)
+
+
+```r
+table(experiment.aggregate@meta.data$cell.cycle) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+```
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>Number of Cells in each Cell Cycle Stage</caption>
+ <thead>
+  <tr>
+   <th style="text-align:center;"> Stage </th>
+   <th style="text-align:center;"> Count </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> G1 </td>
+   <td style="text-align:center;"> 2590 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> G2M </td>
+   <td style="text-align:center;"> 72 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> 19 </td>
+  </tr>
+</tbody>
+</table>
+
+### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
+
+First need to convert to mouse symbols, we'll use Biomart for that too.
+
+```r
+table(Idents(experiment.aggregate))
+```
+
+<div class='r_output'> 
+  UCD_Adj_VitE UCD_Supp_VitE  UCD_VitE_Def 
+           808           947           926
+</div>
+```r
+convertHumanGeneList <- function(x){
+  require("biomaRt")
+  human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+  mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
+
+  humanx <- unique(genes[, 2])
+
+  # Print the first 6 genes found to the screen
+  print(head(humanx))
+  return(humanx)
+}
+
+m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
+```
+
+<div class='r_output'> Ensembl site unresponsive, trying useast mirror
+</div>
+<div class='r_output'> Ensembl site unresponsive, trying asia mirror
+</div>
+<div class='r_output'> [1] "Gmnn"  "Rad51" "Dscc1" "Prim1" "Cenpu" "Mcm7"
+</div>
+```r
+m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
+```
+
+<div class='r_output'> Ensembl site unresponsive, trying uswest mirror
+</div>
+<div class='r_output'> [1] "Tacc3"  "Tmpo"   "Smc4"   "Cdk1"   "Ckap2l" "Cks2"
+</div>
+```r
+# Create our Seurat object and complete the initialization steps
+experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
+```
+
+<div class='r_output'> Warning: The following features are not present in the object: Dscc1, Cenpu,
+ Cdca7, Clspn, E2f8, Cdc45, Uhrf1, Ung, Exo1, Cdc6, Dtl, not searching for symbol
+ synonyms
+</div>
+<div class='r_output'> Warning: The following features are not present in the object: Cdk1, Ckap2l,
+ Cdc25c, Top2a, Nusap1, Dlgap5, Kif2c, Kif20b, Nek2, Ube2c, Cks1brt, Cenpe,
+ Cdc20, Ndc80, Nuf2, Aurkb, Hmmr, Psrc1, Pimreg, Gtse1, Cdca2, Ttk, Bub1, Ccnb2,
+ not searching for symbol synonyms
+</div>
+#### Table of cell cycle (seurate)
+
+
+```r
+table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+```
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>Number of Cells in each Cell Cycle Stage</caption>
+ <thead>
+  <tr>
+   <th style="text-align:center;"> Stage </th>
+   <th style="text-align:center;"> Count </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> G1 </td>
+   <td style="text-align:center;"> 945 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> G2M </td>
+   <td style="text-align:center;"> 854 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> 882 </td>
+  </tr>
+</tbody>
+</table>
+
+#### Comparing the 2
+
+
+```r
+table(scran=experiment.aggregate$cell.cycle, seurat=experiment.aggregate$Phase)  %>% kable(caption = "Comparing scran to seurat cell cycle calls", align = "c") %>% kable_styling()
+```
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>Comparing scran to seurat cell cycle calls</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> G1 </th>
+   <th style="text-align:center;"> G2M </th>
+   <th style="text-align:center;"> S </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> G1 </td>
+   <td style="text-align:center;"> 914 </td>
+   <td style="text-align:center;"> 817 </td>
+   <td style="text-align:center;"> 859 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> G2M </td>
+   <td style="text-align:center;"> 26 </td>
+   <td style="text-align:center;"> 31 </td>
+   <td style="text-align:center;"> 15 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> S </td>
+   <td style="text-align:center;"> 5 </td>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 8 </td>
+  </tr>
+</tbody>
+</table>
+
+#### Fixing the defualt "Ident" in Seurat
+
+
+```r
+table(Idents(experiment.aggregate))
+```
+
+<div class='r_output'> 
+ G2M   S  G1 
+ 854 882 945
+</div>
+```r
+## So lets change it back to samplename
+Idents(experiment.aggregate) <- "orig.ident"
+table(Idents(experiment.aggregate))
+```
+
+<div class='r_output'> 
+  UCD_Adj_VitE UCD_Supp_VitE  UCD_VitE_Def 
+           808           947           926
+</div>
 
 ## Identify variable genes
 
@@ -307,7 +490,7 @@ vfp1 <- LabelPoints(plot = vfp1, points = top10, repel = TRUE)
 vfp1
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](scRNA_Workshop-PART2_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 #### Question(s)
 
@@ -348,38 +531,77 @@ sessionInfo()
  [1] stats     graphics  grDevices datasets  utils     methods   base     
  
  other attached packages:
- [1] kableExtra_1.1.0 knitr_1.28       Seurat_3.1.5    
+ [1] kableExtra_1.1.0 knitr_1.28       biomaRt_2.44.0   Seurat_3.1.5    
  
  loaded via a namespace (and not attached):
-  [1] nlme_3.1-147        tsne_0.1-3          webshot_0.5.2      
-  [4] RcppAnnoy_0.0.16    RColorBrewer_1.1-2  httr_1.4.1         
-  [7] sctransform_0.2.1   tools_4.0.0         R6_2.4.1           
- [10] irlba_2.3.3         KernSmooth_2.23-16  uwot_0.1.8         
- [13] lazyeval_0.2.2      colorspace_1.4-1    withr_2.2.0        
- [16] tidyselect_1.1.0    gridExtra_2.3       compiler_4.0.0     
- [19] rvest_0.3.5         xml2_1.3.2          plotly_4.9.2.1     
- [22] labeling_0.3        scales_1.1.1        lmtest_0.9-37      
- [25] readr_1.3.1         ggridges_0.5.2      pbapply_1.4-2      
- [28] stringr_1.4.0       digest_0.6.25       rmarkdown_2.1      
- [31] pkgconfig_2.0.3     htmltools_0.4.0     highr_0.8          
- [34] htmlwidgets_1.5.1   rlang_0.4.6         rstudioapi_0.11    
- [37] farver_2.0.3        zoo_1.8-8           jsonlite_1.6.1     
- [40] ica_1.0-2           dplyr_0.8.5         magrittr_1.5       
- [43] patchwork_1.0.0     Matrix_1.2-18       Rcpp_1.0.4.6       
- [46] munsell_0.5.0       ape_5.3             reticulate_1.15    
- [49] lifecycle_0.2.0     stringi_1.4.6       yaml_2.2.1         
- [52] MASS_7.3-51.5       Rtsne_0.15          plyr_1.8.6         
- [55] grid_4.0.0          parallel_4.0.0      listenv_0.8.0      
- [58] ggrepel_0.8.2       crayon_1.3.4        lattice_0.20-41    
- [61] cowplot_1.0.0       splines_4.0.0       hms_0.5.3          
- [64] pillar_1.4.4        igraph_1.2.5        future.apply_1.5.0 
- [67] reshape2_1.4.4      codetools_0.2-16    leiden_0.3.3       
- [70] glue_1.4.1          evaluate_0.14       data.table_1.12.8  
- [73] renv_0.10.0         BiocManager_1.30.10 png_0.1-7          
- [76] vctrs_0.3.0         gtable_0.3.0        RANN_2.6.1         
- [79] purrr_0.3.4         tidyr_1.0.3         future_1.17.0      
- [82] assertthat_0.2.1    ggplot2_3.3.0       xfun_0.13          
- [85] rsvd_1.0.3          survival_3.1-12     viridisLite_0.3.0  
- [88] tibble_3.0.1        cluster_2.1.0       globals_0.12.5     
- [91] fitdistrplus_1.1-1  ellipsis_0.3.1      ROCR_1.0-11
+   [1] BiocFileCache_1.12.0        plyr_1.8.6                 
+   [3] igraph_1.2.5                lazyeval_0.2.2             
+   [5] splines_4.0.0               BiocParallel_1.22.0        
+   [7] listenv_0.8.0               GenomeInfoDb_1.24.0        
+   [9] ggplot2_3.3.0               scater_1.16.0              
+  [11] digest_0.6.25               htmltools_0.4.0            
+  [13] viridis_0.5.1               magrittr_1.5               
+  [15] memoise_1.1.0               cluster_2.1.0              
+  [17] ROCR_1.0-11                 limma_3.44.1               
+  [19] globals_0.12.5              readr_1.3.1                
+  [21] matrixStats_0.56.0          askpass_1.1                
+  [23] prettyunits_1.1.1           colorspace_1.4-1           
+  [25] blob_1.2.1                  rvest_0.3.5                
+  [27] rappdirs_0.3.1              ggrepel_0.8.2              
+  [29] xfun_0.13                   dplyr_0.8.5                
+  [31] crayon_1.3.4                RCurl_1.98-1.2             
+  [33] jsonlite_1.6.1              survival_3.1-12            
+  [35] zoo_1.8-8                   ape_5.3                    
+  [37] glue_1.4.1                  gtable_0.3.0               
+  [39] zlibbioc_1.34.0             XVector_0.28.0             
+  [41] webshot_0.5.2               leiden_0.3.3               
+  [43] DelayedArray_0.14.0         BiocSingular_1.4.0         
+  [45] future.apply_1.5.0          SingleCellExperiment_1.10.1
+  [47] BiocGenerics_0.34.0         scales_1.1.1               
+  [49] DBI_1.1.0                   edgeR_3.30.0               
+  [51] Rcpp_1.0.4.6                viridisLite_0.3.0          
+  [53] progress_1.2.2              reticulate_1.15            
+  [55] dqrng_0.2.1                 bit_1.1-15.2               
+  [57] rsvd_1.0.3                  stats4_4.0.0               
+  [59] tsne_0.1-3                  htmlwidgets_1.5.1          
+  [61] httr_1.4.1                  RColorBrewer_1.1-2         
+  [63] ellipsis_0.3.1              ica_1.0-2                  
+  [65] pkgconfig_2.0.3             XML_3.99-0.3               
+  [67] farver_2.0.3                uwot_0.1.8                 
+  [69] dbplyr_1.4.3                locfit_1.5-9.4             
+  [71] tidyselect_1.1.0            labeling_0.3               
+  [73] rlang_0.4.6                 reshape2_1.4.4             
+  [75] AnnotationDbi_1.50.0        munsell_0.5.0              
+  [77] tools_4.0.0                 RSQLite_2.2.0              
+  [79] ggridges_0.5.2              evaluate_0.14              
+  [81] stringr_1.4.0               yaml_2.2.1                 
+  [83] bit64_0.9-7                 fitdistrplus_1.1-1         
+  [85] purrr_0.3.4                 RANN_2.6.1                 
+  [87] pbapply_1.4-2               future_1.17.0              
+  [89] nlme_3.1-147                scran_1.16.0               
+  [91] xml2_1.3.2                  compiler_4.0.0             
+  [93] rstudioapi_0.11             beeswarm_0.2.3             
+  [95] plotly_4.9.2.1              curl_4.3                   
+  [97] png_0.1-7                   statmod_1.4.34             
+  [99] tibble_3.0.1                stringi_1.4.6              
+ [101] highr_0.8                   lattice_0.20-41            
+ [103] Matrix_1.2-18               vctrs_0.3.0                
+ [105] pillar_1.4.4                lifecycle_0.2.0            
+ [107] BiocManager_1.30.10         lmtest_0.9-37              
+ [109] RcppAnnoy_0.0.16            BiocNeighbors_1.6.0        
+ [111] data.table_1.12.8           cowplot_1.0.0              
+ [113] bitops_1.0-6                irlba_2.3.3                
+ [115] patchwork_1.0.0             GenomicRanges_1.40.0       
+ [117] R6_2.4.1                    renv_0.10.0                
+ [119] KernSmooth_2.23-16          gridExtra_2.3              
+ [121] vipor_0.4.5                 IRanges_2.22.1             
+ [123] codetools_0.2-16            MASS_7.3-51.5              
+ [125] assertthat_0.2.1            SummarizedExperiment_1.18.1
+ [127] openssl_1.4.1               withr_2.2.0                
+ [129] sctransform_0.2.1           S4Vectors_0.26.1           
+ [131] GenomeInfoDbData_1.2.3      parallel_4.0.0             
+ [133] hms_0.5.3                   grid_4.0.0                 
+ [135] tidyr_1.0.3                 rmarkdown_2.1              
+ [137] DelayedMatrixStats_1.10.0   Rtsne_0.15                 
+ [139] Biobase_2.48.0              ggbeeswarm_0.6.0
 </div>

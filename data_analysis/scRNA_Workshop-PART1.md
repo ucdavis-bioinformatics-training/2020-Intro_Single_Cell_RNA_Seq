@@ -23,7 +23,6 @@ We start with loading needed libraries for R, at this time all we need is the pa
 
 ```r
 library(Seurat)
-library(biomaRt)
 ```
 
 ## Load the Cell Ranger Matrix Data and create the base Seurat object.
@@ -62,137 +61,6 @@ experiment.aggregate <- CreateSeuratObject(
 
 ```r
 experiment.aggregate$percent.mito <- PercentageFeatureSet(experiment.aggregate, pattern = "^mt-")
-```
-
-
-## Calculate cell cycle, add to meta data
-Using the package scran, get the mouse cell cycle markers and a mapping of m
-**There may be issues with timeine for the Biomart server, just keep trying**
-
-```r
-mm.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
-# Convert to matrix for use in cycle
-mat <- as.matrix(GetAssayData(experiment.aggregate))
-
-# Convert rownames to ENSEMBL IDs, Using biomaRt
-ensembl<- useMart(biomart = "ensembl", dataset = "mmusculus_gene_ensembl")
-```
-
-```
-## Ensembl site unresponsive, trying uswest mirror
-```
-
-```r
-anno <- getBM( values=rownames(mat), attributes=c("mgi_symbol","ensembl_gene_id") , filters= "mgi_symbol"  ,mart=ensembl)
-
-ord <- match(rownames(mat), anno$mgi_symbol) # use anno$mgi_symbol if via biomaRt
-rownames(mat) <- anno$ensembl_gene_id[ord] # use anno$ensembl_gene_id if via biomaRt
-drop <- which(is.na(rownames(mat)))
-mat <- mat[-drop,]
-cycles <- scran::cyclone(mat, pairs=mm.pairs)
-tmp <- data.frame(cell.cycle = cycles$phases)
-rownames(tmp) <- colnames(mat)
-experiment.aggregate <- AddMetaData(experiment.aggregate, tmp)
-```
-
-### Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
-
-First need to convert to mouse symbols, we'll use Biomart for that too.
-
-```r
-table(Idents(experiment.aggregate))
-```
-
-```
-## 
-##  UCD_Adj_VitE UCD_Supp_VitE  UCD_VitE_Def 
-##           904          1000           992
-```
-
-```r
-convertHumanGeneList <- function(x){
-  require("biomaRt")
-  human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-  mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-   
-  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-   
-  humanx <- unique(genes[, 2])
-   
-  # Print the first 6 genes found to the screen
-  print(head(humanx))
-  return(humanx)
-}
- 
-m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-```
-
-```
-## [1] "Gmnn"  "Rad51" "Cdca7" "Prim1" "Slbp"  "Mcm7"
-```
-
-```r
-m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-```
-
-```
-## Ensembl site unresponsive, trying uswest mirror
-```
-
-```
-## [1] "Tacc3"  "Tmpo"   "Cdk1"   "Smc4"   "Ckap2l" "Cks2"
-```
-
-```r
-# Create our Seurat object and complete the initalization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-```
-
-```
-## Warning: The following features are not present in the object: Cdca7, Cenpu,
-## Dscc1, Clspn, Ung, Dtl, Exo1, E2f8, Cdc6, Cdc45, Uhrf1, not searching for symbol
-## synonyms
-```
-
-```
-## Warning: The following features are not present in the object: Cdk1, Ckap2l,
-## Top2a, Nusap1, Cdc25c, Ndc80, Hmmr, Cenpe, Cks1brt, Ube2c, Nek2, Kif2c, Kif20b,
-## Aurkb, Nuf2, Psrc1, Cdca2, Gtse1, Pimreg, Bub1, Ttk, Dlgap5, Cdc20, Ccnb2, not
-## searching for symbol synonyms
-```
-
-```r
-table(scran=experiment.aggregate$cell.cycle, seurat=experiment.aggregate$Phase)
-```
-
-```
-##      seurat
-## scran   G1  G2M    S
-##   G1   982 1072  699
-##   G2M   45   49   17
-##   S      9   13   10
-```
-
-```r
-table(Idents(experiment.aggregate))
-```
-
-```
-## 
-##  G2M   G1    S 
-## 1134 1036  726
-```
-
-```r
-## So lets change it back to samplename
-Idents(experiment.aggregate) <- "orig.ident"
-table(Idents(experiment.aggregate))
-```
-
-```
-## 
-##  UCD_Adj_VitE UCD_Supp_VitE  UCD_VitE_Def 
-##           904          1000           992
 ```
 
 ### Lets create a fake "batch" metadata (used in part 3), Here we determine UCD_Adj_VitE is from one batch and UCD_Adj_VitE/UCD_Adj_VitE are from a second battch
@@ -248,20 +116,13 @@ head(experiment.aggregate[[]])
 ## AAGCGTCGTCTCTAAGG-UCD_Adj_VitE UCD_Adj_VitE       2795         1474
 ## ACATCGGGTCCATGCTC-UCD_Adj_VitE UCD_Adj_VitE       5372         2271
 ## ATACGGTAGTGACCAAG-UCD_Adj_VitE UCD_Adj_VitE        598          367
-##                                percent.mito cell.cycle      S.Score
-## ACTCTAATGTGGGTATG-UCD_Adj_VitE     1.969612         G1  0.055427130
-## AGGCTGGTCAATCACAC-UCD_Adj_VitE     6.216378         G1 -0.003073448
-## ATGACTAGCACATGACT-UCD_Adj_VitE     6.838768         G1 -0.035830619
-## AAGCGTCGTCTCTAAGG-UCD_Adj_VitE     4.221825         G1  0.004570768
-## ACATCGGGTCCATGCTC-UCD_Adj_VitE     7.557707         G1  0.002626878
-## ATACGGTAGTGACCAAG-UCD_Adj_VitE    11.371237         G1 -0.016286645
-##                                   G2M.Score Phase    old.ident batchid
-## ACTCTAATGTGGGTATG-UCD_Adj_VitE  0.243198159   G2M UCD_Adj_VitE  Batch2
-## AGGCTGGTCAATCACAC-UCD_Adj_VitE -0.039775669    G1 UCD_Adj_VitE  Batch2
-## ATGACTAGCACATGACT-UCD_Adj_VitE  0.001092896   G2M UCD_Adj_VitE  Batch2
-## AAGCGTCGTCTCTAAGG-UCD_Adj_VitE -0.041731378     S UCD_Adj_VitE  Batch2
-## ACATCGGGTCCATGCTC-UCD_Adj_VitE -0.150129422     S UCD_Adj_VitE  Batch2
-## ATACGGTAGTGACCAAG-UCD_Adj_VitE -0.015530630    G1 UCD_Adj_VitE  Batch2
+##                                percent.mito batchid
+## ACTCTAATGTGGGTATG-UCD_Adj_VitE     1.969612  Batch2
+## AGGCTGGTCAATCACAC-UCD_Adj_VitE     6.216378  Batch2
+## ATGACTAGCACATGACT-UCD_Adj_VitE     6.838768  Batch2
+## AAGCGTCGTCTCTAAGG-UCD_Adj_VitE     4.221825  Batch2
+## ACATCGGGTCCATGCTC-UCD_Adj_VitE     7.557707  Batch2
+## ATACGGTAGTGACCAAG-UCD_Adj_VitE    11.371237  Batch2
 ```
 
 #### Question(s)
@@ -316,73 +177,35 @@ sessionInfo()
 ## [1] stats     graphics  grDevices datasets  utils     methods   base     
 ## 
 ## other attached packages:
-## [1] biomaRt_2.44.0 Seurat_3.1.5  
+## [1] Seurat_3.1.5
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] ggbeeswarm_0.6.0            Rtsne_0.15                 
-##   [3] colorspace_1.4-1            ellipsis_0.3.1             
-##   [5] ggridges_0.5.2              XVector_0.28.0             
-##   [7] BiocNeighbors_1.6.0         GenomicRanges_1.40.0       
-##   [9] leiden_0.3.3                listenv_0.8.0              
-##  [11] ggrepel_0.8.2               bit64_0.9-7                
-##  [13] AnnotationDbi_1.50.0        codetools_0.2-16           
-##  [15] splines_4.0.0               scater_1.16.0              
-##  [17] knitr_1.28                  jsonlite_1.6.1             
-##  [19] ica_1.0-2                   cluster_2.1.0              
-##  [21] dbplyr_1.4.3                png_0.1-7                  
-##  [23] uwot_0.1.8                  sctransform_0.2.1          
-##  [25] BiocManager_1.30.10         compiler_4.0.0             
-##  [27] httr_1.4.1                  dqrng_0.2.1                
-##  [29] assertthat_0.2.1            Matrix_1.2-18              
-##  [31] lazyeval_0.2.2              limma_3.44.1               
-##  [33] BiocSingular_1.4.0          htmltools_0.4.0            
-##  [35] prettyunits_1.1.1           tools_4.0.0                
-##  [37] rsvd_1.0.3                  igraph_1.2.5               
-##  [39] gtable_0.3.0                glue_1.4.1                 
-##  [41] GenomeInfoDbData_1.2.3      RANN_2.6.1                 
-##  [43] reshape2_1.4.4              dplyr_0.8.5                
-##  [45] rappdirs_0.3.1              Rcpp_1.0.4.6               
-##  [47] Biobase_2.48.0              vctrs_0.3.0                
-##  [49] ape_5.3                     nlme_3.1-147               
-##  [51] DelayedMatrixStats_1.10.0   lmtest_0.9-37              
-##  [53] xfun_0.13                   stringr_1.4.0              
-##  [55] globals_0.12.5              lifecycle_0.2.0            
-##  [57] irlba_2.3.3                 renv_0.10.0                
-##  [59] statmod_1.4.34              XML_3.99-0.3               
-##  [61] future_1.17.0               edgeR_3.30.0               
-##  [63] zlibbioc_1.34.0             MASS_7.3-51.5              
-##  [65] zoo_1.8-8                   scales_1.1.1               
-##  [67] hms_0.5.3                   parallel_4.0.0             
-##  [69] SummarizedExperiment_1.18.1 RColorBrewer_1.1-2         
-##  [71] SingleCellExperiment_1.10.1 yaml_2.2.1                 
-##  [73] curl_4.3                    memoise_1.1.0              
-##  [75] reticulate_1.15             pbapply_1.4-2              
-##  [77] gridExtra_2.3               ggplot2_3.3.0              
-##  [79] stringi_1.4.6               RSQLite_2.2.0              
-##  [81] S4Vectors_0.26.1            scran_1.16.0               
-##  [83] BiocGenerics_0.34.0         BiocParallel_1.22.0        
-##  [85] GenomeInfoDb_1.24.0         matrixStats_0.56.0         
-##  [87] rlang_0.4.6                 pkgconfig_2.0.3            
-##  [89] bitops_1.0-6                evaluate_0.14              
-##  [91] lattice_0.20-41             ROCR_1.0-11                
-##  [93] purrr_0.3.4                 patchwork_1.0.0            
-##  [95] htmlwidgets_1.5.1           cowplot_1.0.0              
-##  [97] bit_1.1-15.2                tidyselect_1.1.0           
-##  [99] RcppAnnoy_0.0.16            plyr_1.8.6                 
-## [101] magrittr_1.5                R6_2.4.1                   
-## [103] IRanges_2.22.1              DelayedArray_0.14.0        
-## [105] DBI_1.1.0                   pillar_1.4.4               
-## [107] fitdistrplus_1.1-1          survival_3.1-12            
-## [109] RCurl_1.98-1.2              tibble_3.0.1               
-## [111] future.apply_1.5.0          tsne_0.1-3                 
-## [113] crayon_1.3.4                KernSmooth_2.23-16         
-## [115] BiocFileCache_1.12.0        plotly_4.9.2.1             
-## [117] rmarkdown_2.1               viridis_0.5.1              
-## [119] progress_1.2.2              locfit_1.5-9.4             
-## [121] grid_4.0.0                  data.table_1.12.8          
-## [123] blob_1.2.1                  digest_0.6.25              
-## [125] tidyr_1.0.3                 openssl_1.4.1              
-## [127] stats4_4.0.0                munsell_0.5.0              
-## [129] beeswarm_0.2.3              viridisLite_0.3.0          
-## [131] vipor_0.4.5                 askpass_1.1
+##  [1] httr_1.4.1          tidyr_1.0.3         jsonlite_1.6.1     
+##  [4] viridisLite_0.3.0   splines_4.0.0       leiden_0.3.3       
+##  [7] assertthat_0.2.1    BiocManager_1.30.10 renv_0.10.0        
+## [10] yaml_2.2.1          ggrepel_0.8.2       globals_0.12.5     
+## [13] pillar_1.4.4        lattice_0.20-41     glue_1.4.1         
+## [16] reticulate_1.15     digest_0.6.25       RColorBrewer_1.1-2 
+## [19] colorspace_1.4-1    cowplot_1.0.0       htmltools_0.4.0    
+## [22] Matrix_1.2-18       plyr_1.8.6          pkgconfig_2.0.3    
+## [25] tsne_0.1-3          listenv_0.8.0       purrr_0.3.4        
+## [28] patchwork_1.0.0     scales_1.1.1        RANN_2.6.1         
+## [31] Rtsne_0.15          tibble_3.0.1        ggplot2_3.3.0      
+## [34] ellipsis_0.3.1      ROCR_1.0-11         pbapply_1.4-2      
+## [37] lazyeval_0.2.2      survival_3.1-12     magrittr_1.5       
+## [40] crayon_1.3.4        evaluate_0.14       future_1.17.0      
+## [43] nlme_3.1-147        MASS_7.3-51.5       ica_1.0-2          
+## [46] tools_4.0.0         fitdistrplus_1.1-1  data.table_1.12.8  
+## [49] lifecycle_0.2.0     stringr_1.4.0       plotly_4.9.2.1     
+## [52] munsell_0.5.0       cluster_2.1.0       irlba_2.3.3        
+## [55] compiler_4.0.0      rsvd_1.0.3          rlang_0.4.6        
+## [58] grid_4.0.0          ggridges_0.5.2      RcppAnnoy_0.0.16   
+## [61] htmlwidgets_1.5.1   igraph_1.2.5        rmarkdown_2.1      
+## [64] gtable_0.3.0        codetools_0.2-16    reshape2_1.4.4     
+## [67] R6_2.4.1            gridExtra_2.3       zoo_1.8-8          
+## [70] knitr_1.28          dplyr_0.8.5         uwot_0.1.8         
+## [73] future.apply_1.5.0  KernSmooth_2.23-16  ape_5.3            
+## [76] stringi_1.4.6       parallel_4.0.0      Rcpp_1.0.4.6       
+## [79] vctrs_0.3.0         sctransform_0.2.1   png_0.1-7          
+## [82] tidyselect_1.1.0    xfun_0.13           lmtest_0.9-37
 ```

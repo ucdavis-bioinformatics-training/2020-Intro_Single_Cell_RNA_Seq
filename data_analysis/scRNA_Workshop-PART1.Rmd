@@ -22,7 +22,6 @@ At weaning, Ttpa+/+ mice were fed a normal diet (35 mg of dl-α-tocopheryl aceta
 We start with loading needed libraries for R, at this time all we need is the package [Seurat](http://satijalab.org/seurat/).
 ```{r, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
-library(biomaRt)
 ```
 
 ## Load the Cell Ranger Matrix Data and create the base Seurat object.
@@ -59,64 +58,6 @@ experiment.aggregate <- CreateSeuratObject(
 
 ```{r}
 experiment.aggregate$percent.mito <- PercentageFeatureSet(experiment.aggregate, pattern = "^mt-")
-```
-
-
-## Calculate cell cycle, add to meta data
-Using the package scran, get the mouse cell cycle markers and a mapping of m
-**There may be issues with timeine for the Biomart server, just keep trying**
-```{r}
-mm.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
-# Convert to matrix for use in cycle
-mat <- as.matrix(GetAssayData(experiment.aggregate))
-
-# Convert rownames to ENSEMBL IDs, Using biomaRt
-ensembl<- useMart(biomart = "ensembl", dataset = "mmusculus_gene_ensembl")
-
-anno <- getBM( values=rownames(mat), attributes=c("mgi_symbol","ensembl_gene_id") , filters= "mgi_symbol"  ,mart=ensembl)
-
-ord <- match(rownames(mat), anno$mgi_symbol) # use anno$mgi_symbol if via biomaRt
-rownames(mat) <- anno$ensembl_gene_id[ord] # use anno$ensembl_gene_id if via biomaRt
-drop <- which(is.na(rownames(mat)))
-mat <- mat[-drop,]
-cycles <- scran::cyclone(mat, pairs=mm.pairs)
-tmp <- data.frame(cell.cycle = cycles$phases)
-rownames(tmp) <- colnames(mat)
-experiment.aggregate <- AddMetaData(experiment.aggregate, tmp)
-```
-
-### Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
-
-First need to convert to mouse symbols, we'll use Biomart for that too.
-```{r}
-table(Idents(experiment.aggregate))
-
-convertHumanGeneList <- function(x){
-  require("biomaRt")
-  human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-  mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-   
-  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-   
-  humanx <- unique(genes[, 2])
-   
-  # Print the first 6 genes found to the screen
-  print(head(humanx))
-  return(humanx)
-}
- 
-m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-
-# Create our Seurat object and complete the initalization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-
-table(scran=experiment.aggregate$cell.cycle, seurat=experiment.aggregate$Phase)
-
-table(Idents(experiment.aggregate))
-## So lets change it back to samplename
-Idents(experiment.aggregate) <- "orig.ident"
-table(Idents(experiment.aggregate))
 ```
 
 ### Lets create a fake "batch" metadata (used in part 3), Here we determine UCD_Adj_VitE is from one batch and UCD_Adj_VitE/UCD_Adj_VitE are from a second battch
